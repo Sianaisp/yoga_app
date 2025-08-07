@@ -20,7 +20,8 @@ dependencies = [
     "langchain-community (>=0.0.37,<0.1.0)",
     "langchain-openai (>=0.0.8,<0.1.0)",
     "watchdog (>=6.0.0,<7.0.0)",
-    "reportlab (>=4.4.3,<5.0.0)"
+    "reportlab (>=4.4.3,<5.0.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)"
 ]
 
 [tool.poetry]

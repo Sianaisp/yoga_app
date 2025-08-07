@@ -10,9 +10,16 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import A4
 
 def parse_pose_names_from_function_call(function_call):
-    args_str = function_call.get("arguments", "{}")
-    args = json.loads(args_str)
-    return args.get("pose_names", [])
+    try:
+        args_str = function_call.get("arguments", "{}")
+        args = json.loads(args_str)
+        pose_names = args.get("pose_names", [])
+        if not isinstance(pose_names, list):
+            raise ValueError("pose_names must be a list.")
+        return pose_names
+    except (json.JSONDecodeError, TypeError, ValueError) as e:
+        logger.error(f"Error parsing pose names from function call: {e}")
+        return []
 
 def get_yogajournal_pose_image(pose_name: str) -> str:
     """Returns a Yoga Journal URL for the given pose name."""
@@ -33,28 +40,36 @@ DEFAULT_HOLD_TIMES = {
 }
 
 def create_sequence(params, retriever=None, llm=None, style="hatha"):
-    """
-    params dict must include:
-        - poses: list of pose names (required)
-        - style: yoga style (optional, defaults to 'hatha' if missing)
-        - sequence_name: optional string
-    """
-    poses = params.get("poses", [])
-    style = params.get("style", style).lower()
-    sequence_name = params.get("sequence_name", None)
-    default_hold_time = DEFAULT_HOLD_TIMES.get(style, 30)
+    try:
+        poses = params.get("poses", [])
+        sequence_name = params.get("sequence_name", None)
 
-    sequence = {
-        "sequence_name": sequence_name or f"{style.title()} Yoga Sequence",
-        "style": style,
-        "poses": [
-            {"name": pose.title(), "duration": f"{default_hold_time} seconds"}
-            for pose in poses
-        ],
-        "total_duration": f"{default_hold_time * len(poses)} seconds"
-    }
+        if not isinstance(poses, list) or not poses:
+            raise ValueError("Invalid or missing 'poses' list.")
 
-    return sequence
+        default_hold_time = DEFAULT_HOLD_TIMES.get(style, 30)
+
+        sequence = {
+            "sequence_name": sequence_name or f"{style.title()} Yoga Sequence",
+            "style": style,
+            "poses": [
+                {"name": pose.title(), "duration": f"{default_hold_time} seconds"}
+                for pose in poses
+            ],
+            "total_duration": f"{default_hold_time * len(poses)} seconds"
+        }
+
+        return sequence
+
+    except Exception as e:
+        logger.error(f"Error creating sequence: {e}")
+        return {
+            "sequence_name": "Error",
+            "style": style,
+            "poses": [],
+            "total_duration": "0 seconds",
+            "error": str(e)
+        }
 
 _pose_query_cache = set()
 logger = logging.getLogger(__name__)
@@ -65,13 +80,20 @@ def get_pose_benefits(pose_names, retriever, base_llm):
         return "Please specify which pose(s) you want to know about."
 
     results = []
+
     for pose in pose_names:
-        query = f"Tell me the benefits and contraindications of the yoga pose '{pose}'."
-        docs = retriever.get_relevant_documents(query)
+        try:
+            query = f"Tell me the benefits and contraindications of the yoga pose '{pose}'."
+            docs = retriever.get_relevant_documents(query)
 
-        combined_text = "\n\n".join([doc.page_content for doc in docs[:3]])
+            if not docs:
+                logger.warning(f"No documents found for pose: {pose}")
+                results.append(f"### 🧘‍♀️ {pose.title()}\n\nNo information found.")
+                continue
 
-        prompt = f"""
+            combined_text = "\n\n".join([doc.page_content for doc in docs[:3]])
+
+            prompt = f"""
 You are a yoga expert assistant.
 
 Based on the following text about the pose '{pose}', provide a clear, concise summary with four sections:
@@ -94,13 +116,19 @@ Text:
 {combined_text}
 """
 
-        response = base_llm.invoke(prompt)  # response is AIMessage
+            response = base_llm.invoke(prompt)
+            # Extract and deduplicate sources
+            sources_set = {doc.metadata.get("source", "Unknown source") for doc in docs[:3]}
+            sources_list = sorted(sources_set) 
 
-        # Build Sources section from metadata, fallback to 'Unknown source'
-        sources_list = [doc.metadata.get("source", "Unknown source") for doc in docs[:3]]
-        sources_text = "\n\n**Sources:**\n" + "\n".join(f"- {src}" for src in sources_list)
+            # Format for display
+            sources_text = "\n\n**Sources:**\n" + "\n".join(f"- {src}" for src in sources_list)
 
-        results.append(f"### 🧘‍♀️ {pose.title()}\n\n{response.content.strip()}{sources_text}")
+            results.append(f"### 🧘‍♀️ {pose.title()}\n\n{response.content.strip()}{sources_text}")
+
+        except Exception as e:
+            logger.error(f"Failed to get benefits for pose '{pose}': {e}")
+            results.append(f"### 🧘‍♀️ {pose.title()}\n\nAn error occurred while retrieving pose information.")
 
     return "\n\n".join(results)
 

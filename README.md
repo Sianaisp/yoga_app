@@ -96,8 +96,6 @@ requirements.txt (exported from Poetry for Render)
 app.py in the root directory
 Then deploy via Render’s web dashboard.
 
-🖼 Screenshot
-
 
 📬 How to Use
 

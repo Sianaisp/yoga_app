@@ -101,7 +101,15 @@ Then deploy via Render’s web dashboard.
 
 📬 How to Use
 Ask the bot about a yoga pose, anatomy, or philosophy.
+
 Export your chat in your chosen format.
+
 Enjoy exploring yoga with intelligent guidance 🌿
+
+▶️ Live Demo
+
+This project is deployed on [Render](https://render.com).  
+You can try the live app here: [https://your-app-name.onrender.com](https://yoga-app-k2wh.onrender.com)
+
 
 

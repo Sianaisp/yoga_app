@@ -25,7 +25,7 @@ def build_qa_chain():
 
     retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
-    chat = ChatOpenAI(model_name="gpt-4", temperature=0, openai_api_key=st.secrets["openai_api_key"])
+    chat = ChatOpenAI(model_name="gpt-4", temperature=0, openai_api_key=openai_api_key)
 
     rewrite_prompt = PromptTemplate(
         input_variables=["question"],

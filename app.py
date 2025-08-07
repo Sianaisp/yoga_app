@@ -4,6 +4,7 @@ import warnings
 import time
 import io
 import streamlit as st
+from dotenv import load_dotenv
 from retriever import build_qa_chain
 from streamlit.runtime.scriptrunner import RerunException, RerunData
 from langchain_community.chat_models import ChatOpenAI
@@ -13,6 +14,9 @@ from langchain.schema import HumanMessage, SystemMessage
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import LLMChain
 
+
+load_dotenv()
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 from utils import (
     parse_pose_names_from_function_call,

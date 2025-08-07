@@ -27,6 +27,15 @@ poetry install
 3. Activate the virtual environment
 poetry shell
 4. Run the app
+You'll need to create a .env file in the root of the project and include your OpenAI API
+````
+touch .env
+````
+Then add the following line to it:
+````
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
 streamlit run app.py
 ☁️ Deploying to Render (Cloud)
 1. Set up a new Render Web Service

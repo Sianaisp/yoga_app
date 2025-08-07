@@ -100,6 +100,9 @@ Then deploy via Render’s web dashboard.
 
 
 📬 How to Use
+
+<img width="1122" height="497" alt="Screenshot 2025-08-07 at 11 58 10" src="https://github.com/user-attachments/assets/edca27c3-b2ec-451b-a6fe-785eba892bf5" />
+
 Ask the bot about a yoga pose, anatomy, or philosophy.
 
 Export your chat in your chosen format.

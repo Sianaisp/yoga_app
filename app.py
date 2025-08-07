@@ -3,6 +3,7 @@ import logging
 import warnings
 import time
 import io
+import os
 import streamlit as st
 from dotenv import load_dotenv
 from retriever import build_qa_chain

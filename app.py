@@ -13,6 +13,7 @@ from langchain.schema import HumanMessage, SystemMessage
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import LLMChain
 
+
 from utils import (
     parse_pose_names_from_function_call,
     get_pose_benefits,
@@ -201,7 +202,7 @@ if submit and user_input.strip():
                 args = func_call.get("arguments", "{}")
                 pose_name = json.loads(args).get("pose_name", "")
                 pose_names = [pose_name]
-                bot_reply = ""  # Don’t just say “Fetching image...” — leave blank here
+                bot_reply = ""  # Don’t just say “Fetching image...”
 
             elif func_name == "create_yoga_sequence":
                 args = func_call.get("arguments", "{}")
@@ -226,7 +227,7 @@ if submit and user_input.strip():
         completion_tokens = usage.get("completion_tokens", 0)
         total_tokens = usage.get("total_tokens", 0)
 
-        # GPT-4 pricing (adjust if using gpt-4-turbo or gpt-4o)
+        # GPT-4 pricing
         cost = (prompt_tokens / 1000) * 0.03 + (completion_tokens / 1000) * 0.06
 
         token_info = (

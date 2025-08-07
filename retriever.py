@@ -7,8 +7,10 @@ from loader import load_pdfs_from_folder
 import os
 import streamlit as st
 
+openai_api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = openai_api_key
 def build_qa_chain():
-    embeddings = OpenAIEmbeddings(openai_api_key=st.secrets["openai_api_key"])
+    embeddings = OpenAIEmbeddings(openai_api_key=openai.api_key
 
     if os.path.exists("faiss_index") and os.path.exists("faiss_index/index.faiss"):
         vector_store = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
